@@ -11,7 +11,6 @@
 #define DRAMA 5
 
 
-
 struct actor{
   char name[100];
   const int bonus;
@@ -103,7 +102,7 @@ typedef struct item item;
 item items[ITEMS_LENGTH];
 
 int calculate_revenue(movie *newmovie){
-  int r = newmovie->marketing / 100;
+  int r = newmovie->marketing / 10;
   newmovie->rating = newmovie->budget;
 
   
@@ -120,30 +119,53 @@ int calculate_revenue(movie *newmovie){
   }
   
   for(int i = 0; i < 3; i++){
+    int a = r * newmovie->rating / 100;
     r += newmovie->actors[i].fans;
-    newmovie->actors[i].fans += r * newmovie->rating / 100;
+    newmovie->actors[i].fans += a;
+    newmovie->actors[i].salary += a * 5;
+    newmovie->actors[i].available = 1;
   }
 
   return r * 20;
 }
 
 
-void make_movie(){
+movie make_movie(){
   movie newmovie;
-  newmovie.revenue = 0;
-  movie *aux = head;
-  head = &newmovie;
-  head->next = aux;
+  newmovie.next = head;
   printf("\nNome do filme: ");
   scanf("%s", option);
   strcpy(newmovie.name, option);
+  while(1){
+    printf("\nfaroeste\ncrime\nheroi\nhorror\ndrama\nGenero: ");
+    scanf("%s", option);
+    if(!strcmp(option, "faroeste")){
+      newmovie.genre = FAROESTE;
+      break;
+    } else if(!strcmp(option, "crime")){
+      newmovie.genre = CRIME;
+      break;
+    } else if(!strcmp(option, "heroi")){
+      newmovie.genre = HEROI;
+      break;
+    } else if(!strcmp(option, "horror")){
+      newmovie.genre = HORROR;
+      break;
+    } else if(!strcmp(option, "drama")){
+      newmovie.genre = DRAMA;
+      break;
+    } else {
+      printf("Invalido");
+    }
+  }
+  
   printf("\nOrçamento: ");
   scanf("%d", &n);
-  studio.money -= n;
+  yourstudio.money -= n;
   newmovie.budget = n;
   printf("\nOrçamento de marketing: ");
   scanf("%d", &n);
-  studio.money -= n;
+  yourstudio.money -= n;
   newmovie.marketing = n;
 
 
@@ -173,8 +195,10 @@ void make_movie(){
 
 
   newmovie.revenue = calculate_revenue(&newmovie);
+  printf("your movie generated %d dollars in revenue\n", newmovie.revenue);
+  yourstudio.money += newmovie.revenue;
 
-  return;
+  return newmovie;
 }
 
 
