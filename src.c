@@ -22,7 +22,7 @@ typedef struct actor actor;
 
 struct movie{
   char name[50];
-  actor *actors;
+  actor actors[3];
   int revenue;
   int budget;
   int marketing;
@@ -76,12 +76,11 @@ adam.bonus = DRAMA;
 adam.salary = 10000;
 adam.fans = 10000;
 
-actor actors[ACTORS_LENGTH];
 
 int year = 2026;
 char option[50];
 int n;
-movie *head = NULL;
+movie *head = malloc(sizeof(movie));
 
 
 struct studio{
@@ -92,14 +91,30 @@ typedef struct studio studio;
 
 struct item{
   char name[20];
-  int price;
-  int bonus;
-  int sold;
-  int available;
+  const int price;
+  const int bonus;
+  unsigned int sold;
+  unsigned int available;
 }
 typedef struct item item;
 
-item items[ITEMS_LENGTH];
+studio yourstudio;
+item *items = malloc(ITEMS_LENGTH * sizeof(item));
+actor *actors = malloc(ACTORS_LENGTH * sizeof(actors));
+
+movie *organize(movie *head, movie *newmovie){
+  if(head == NULL || head->revenue < newmovie->revenue){
+    newmovie->next = head;
+    return newmovie;
+  }
+  movie *aux = head;
+  while(aux->next != NULL && newmovie->revenue < aux->next->revenue){
+    aux = aux->next;
+  }
+  newmovie->next = aux->next;
+  aux->next = newmovie;
+  return head;
+}
 
 int calculate_revenue(movie *newmovie){
   int r = newmovie->marketing / 10;
@@ -201,6 +216,84 @@ movie make_movie(){
   return newmovie;
 }
 
+void save_game(){
+  FILE *fptr = fopen("save.txt", "w");
+  fprintf(fptr, "%s\n", yourstudio.name);
+  fprintf(fptr, "%d\n", yourstudio.money);
+  for(int i = 0; i < ACTORS_LENGTH; i++){
+    fprintf(fptr, "%s\n", actors[i].name);
+    fprintf(fptr, "%d\n", actors[i].bonus);
+    fprintf(fptr, "%d\n", actors[i].fans);
+    fprintf(fptr, "%u\n", actors[i].available);
+  }
+  for(int i = 0; i < ITEMS_LENGTH; i++){
+    fprintf(fptr, "%s\n", items[i].name);
+    fprintf(fptr, "%d\n", items[i].price);
+    fprintf(fptr, "%d\n", items[i].bonus);
+    fprintf(fptr, "%u\n", items[i].sold);
+    fprintf(fptr, "%u\n", items[i].available);
+  }
+  movie *aux = head;
+  while(aux != NULL){
+    fprintf(fptr, "%s\n", aux->name);
+    for(int i = 0; i < 3; i++){
+      fprintf(fptr, "%s\n", aux->actors[i].name);
+    }
+    fprintf(fptr, "%d\n", aux->revenue);
+    fprintf(fptr, "%d\n", aux->budget);
+    fprintf(fptr, "%d\n", aux->marketing);
+    fprintf(fptr, "%d\n", aux->rating);
+    fprintf(fptr, "%d\n", aux->genre);
+  }
+  fclose(fptr);
+  return;
+}
+
+void load_game(){
+  FILE *fptr = fopen("save.txt", "r");
+  if(fptr == NULL){
+    printf("No save file found");
+    return;
+  }
+  char st[100];
+  fgets(yourstudio.name, 50, fptr);
+  fscanf(fptr, "%d", yourstudio.money);
+
+  for(int i = 0; i < ACTORS_LENGTH; i++){
+    fgets(actors[i].name, 100, fptr);
+    fscanf(fptr, "%d", actors[i].bonus);
+    fscanf(fptr, "%d", actors[i].fans);
+    fscanf(fptr, "%u", actors[i].available);
+  }
+  for(int i = 0; i < ITEMS_LENGTH; i++){
+    fgets(items[i].name, 20, fptr);
+    fscanf(fptr, "%d", items[i].price);
+    fscanf(fptr, "%d", items[i].bonus);
+    fscanf(fptr, "%u", items[i].sold);
+    fscanf(fptr, "%u", items[i].available);
+  }
+  
+  movie *aux = head;
+  while(fgets(aux->name, 50, fptr) != NULL){
+    for(int i = 0; i < 3; i++){
+      char st[100];
+      fgets(st, 100, fptr);
+      for(int j = 0; j < ACTORS_LENGTH; j++){
+        if(!strcmp(actors[j].name, st)){
+          aux->actors[i] = actors[j];
+          break;
+        }
+      }
+    }
+    fscanf(fptr, "%d", aux->revenue);
+    fscanf(fptr, "%d", aux->budget);
+    fscanf(fptr, "%d", aux->marketing);
+    fscanf(fptr, "%d", aux->rating);
+    fscanf(fptr, "%d", aux->genre);
+    
+  }
+  fclose(fptr);
+}
 
 int main(){
   printf("New Game\nLoad\n");
@@ -218,6 +311,13 @@ int main(){
     } else {
       printf("Comando invalido.\n");
     }
+  }
+  free(actors);
+  free(items);
+  while(head != NULL){
+    movie *aux = head;
+    head = head->next;
+    free(aux);
   }
   return 0;
 }
