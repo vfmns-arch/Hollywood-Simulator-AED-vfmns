@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define TABLE_SIZE 16
 #define ACTORS_LENGTH 8
@@ -106,7 +107,7 @@ actor *searchActor(char *name) {
     return NULL;
 }
 
-movie *organize(movie *head, movie *newmovie){
+movie *organize(movie *newmovie){
   if(head == NULL || head->revenue < newmovie->revenue){
     newmovie->next = head;
     return newmovie;
@@ -151,28 +152,28 @@ int calculate_revenue(movie *newmovie){
 }
 
 
-movie *make_movie(){
+void make_movie(){
   movie *newmovie = malloc(sizeof(movie));;
   newmovie->next = NULL;
   printf("\nNome do filme: ");
   scanf("%s", option);
   strcpy(newmovie->name, option);
   while(1){
-    printf("\nfaroeste\ncrime\nheroi\nhorror\ndrama\nGenero: ");
+    printf("\nFaroeste\nCrime\nHeroi\nHorror\nDrama\nGenero: ");
     scanf("%s", option);
-    if(!strcmp(option, "faroeste")){
+    if(!strcmp(tolower(option), "faroeste")){
       newmovie->genre = FAROESTE;
       break;
-    } else if(!strcmp(option, "crime")){
+    } else if(!strcmp(tolower(option), "crime")){
       newmovie->genre = CRIME;
       break;
-    } else if(!strcmp(option, "heroi")){
+    } else if(!strcmp(tolower(option), "heroi")){
       newmovie->genre = HEROI;
       break;
-    } else if(!strcmp(option, "horror")){
+    } else if(!strcmp(tolower(option), "horror")){
       newmovie->genre = HORROR;
       break;
-    } else if(!strcmp(option, "drama")){
+    } else if(!strcmp(tolower(option), "drama")){
       newmovie->genre = DRAMA;
       break;
     } else {
@@ -210,12 +211,13 @@ movie *make_movie(){
   }
   newmovie->revenue = calculate_revenue(&newmovie);
   if(newmovie->revenue > 1000000000){
+    printf("Ronald Reagan desbloqueado\n");
     actors[7].available = 1;
   }
-  printf("your movie generated %d dollars in revenue\n", newmovie->revenue);
+  printf("Seu filme gerou %d dolares\n", newmovie->revenue);
   yourstudio->money += newmovie->revenue;
-  head = organize(head, newmovie);
-  return newmovie;
+  head = organize(newmovie);
+  return;
 }
 
 int save_game(char *f){
@@ -254,11 +256,10 @@ int save_game(char *f){
   return 0;
 }
 
-void load_game(char *f){
+int load_game(char *f){
   FILE *fptr = fopen(f, "r");
   if(fptr == NULL){
-    printf("No save file found");
-    return;
+    return 1;
   }
   char st[100];
   fgets(yourstudio->name, 50, fptr);
@@ -301,7 +302,7 @@ void load_game(char *f){
     aux = aux->next;
   }
   fclose(fptr);
-  return;
+  return 0;
 }
 
 void new_game(){
@@ -407,7 +408,58 @@ int main(){
     }
   }
   while(1){
-    printf("Que deseja fazer?\nLoja\nNovo filme\nstatus\n");
+    printf("Que deseja fazer?\nLoja\nNovo Filme\nStatus\nSave\nExit\n");
+    scanf("%s", option);
+    if(!strcmp(tolower(option), "loja")){
+      while(1){
+        printf("Opcoes:\nExit\n");
+        for(int i = 0; i < ITEMS_LENGTH; i++){
+          if(items[i].available && !items[i].sold){
+            printf("%s, %d dolares\n", items[i].name, items[i].price);
+          }
+        }
+        scanf("%s", option);
+        if(!strcmp(tolower(option), "exit")){
+          printf("Saindo da Loja...\n");
+          break;
+        }
+        for(int i = 0; i < ITEMS_LENGTH; i++){
+          if(!strcmp(tolower(option), tolower(items[i].name))){
+            items[i].sold = 1;
+            items[i].available = 0;
+            break;
+          }
+          if(i == ITEMS_LENGTH - 1){
+            printf("Comando Invalido\n");
+          }
+        }
+      }    
+    } else if(strcmp(tolower(option), "novo filme")){
+      make_movie();
+    } else if(!strcmp(tolower(option), "status")){
+      printf("Nome de seu estudio: %s\nDinheiro: %d\nAtores:\n");
+      for(int i = 0; i < ACTORS_LENGTH; i++){
+        if(actors[i].available){
+          printf("%s, salario atual: %d\n", actors[i].name, actors[i].salary);
+        }
+      }
+      printf("Items Comprados:\n");
+      for(int i = 0; i < ITEMS_LENGTH; i++){
+        if(items[i].sold){
+          printf("%s\n", items[i].name);
+        }
+      }
+    } else if(strcmp(tolower(option), "save")){
+      printf("Digite o nome do arquivo de save\n");
+      scanf("%s", option);
+      if(save_game(option)){
+        printf("Nao foi possivel salvar o jogo\n");
+      }
+    } else if(!strcmp(tolower(option), "exit")){
+      break;
+    } else {
+      printf("Comando Invalido\n");
+    }
   }
   free(actors);
   free(items);
