@@ -162,6 +162,11 @@ long calculate_revenue(movie *newmovie){
     return r * 20;
 }
 
+void clearBuffer(){
+    int c;
+    while((c = getchar()) != '\n' && c != EOF);
+}
+
 void make_movie(){
   movie *newmovie = malloc(sizeof(movie));
   newmovie->next = NULL;
@@ -209,10 +214,11 @@ void make_movie(){
   while(1){
     printf("\nOrçamento do filme: ");
     long o;
-    scanf("%ld", &o);
-    if(o > yourstudio->money){
-      printf("Dinheiro insuficiente\n");
+    if(scanf("%ld", &o) != 1 || o > yourstudio->money || o < 0){
+      clearBuffer();
+      printf("Dinheiro invalido ou insuficiente\n");
     } else {
+      clearBuffer();
       yourstudio->money -= o;
       newmovie->budget = o;
       break;
@@ -221,10 +227,11 @@ void make_movie(){
   while(1){
     printf("\nOrçamento de marketing: ");
     long o;
-    scanf("%ld", &o);
-    if(o > yourstudio->money){
-      printf("Dinheiro insuficiente\n");
+    if(scanf("%ld", &o) != 1 || o > yourstudio->money || o < 0){
+      clearBuffer();
+      printf("Dinheiro invalido ou insuficiente\n");
     } else {
+      clearBuffer();
       yourstudio->money -= o;
       newmovie->marketing = o;
       break;
@@ -252,6 +259,7 @@ void make_movie(){
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
     actor *aaa = searchActor(option);
+    printf("Ator escolhido: %s\n", option);
     if(aaa == NULL || aaa->available == 0){
       printf("\nNome Invalido\n");
       i--;
@@ -270,7 +278,6 @@ void make_movie(){
     printf("Ronald Reagan desbloqueado\n");
     actors[7].available = 1;
   }
-  newmovie->revenue = calculate_revenue(newmovie);
   yourstudio->money += newmovie->revenue;
   head = organize(newmovie);
   return;
@@ -512,7 +519,8 @@ int main(){
           break;
         }
         for(int i = 0; i < ITEMS_LENGTH; i++){
-          if(!strcmp(option, items[i].name)){
+          if(!strcmp(option, items[i].name) && items[i].price <= yourstudio->money && items[i].available && !items[i].sold){
+            yourstudio->money -= items[i].price;
             items[i].sold = 1;
             items[i].available = 0;
             break;
