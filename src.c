@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #define TABLE_SIZE 16
 #define ACTORS_LENGTH 8
@@ -12,36 +11,36 @@
 #define HORROR 4
 #define DRAMA 5
 
+struct actor{
+  char name[100];
+  int bonus;
+  long salary;
+  long fans;
+  unsigned char available;
+};
+typedef struct actor actor;
+
 typedef struct {
     char key[100];
     actor *actor;
     int occupied;
 } HashEntry;
 
-struct actor{
-  char name[100];
-  int bonus;
-  int salary;
-  int fans;
-  unsigned char available;
-};
-typedef struct actor actor;
-
 struct movie{
   char name[50];
   actor *actors[3];
-  int revenue;
-  int budget;
-  int marketing;
-  movie *next;
-  int rating;
+  long revenue;
+  long budget;
+  long marketing;
+  struct movie *next;
+  long rating;
   int genre;
 };
 typedef struct movie movie;
 
 struct studio{
   char name[50];
-  int money;
+  long money;
 };
 typedef struct studio studio;
 
@@ -62,6 +61,7 @@ studio *yourstudio;
 item *items;
 actor *actors;
 HashEntry hashTable[TABLE_SIZE];
+char option[50];
 
 unsigned int hashFunction(char *name) {
     unsigned long hash = 5381;
@@ -94,7 +94,7 @@ actor *searchActor(char *name) {
     while (hashTable[index].occupied) {
 
         if (strcmp(hashTable[index].key, name) == 0) {
-            return &hashTable[index].actor;
+            return hashTable[index].actor;
         }
 
         index = (index + 1) % TABLE_SIZE;
@@ -121,100 +121,126 @@ movie *organize(movie *newmovie){
   return head;
 }
 
-int calculate_revenue(movie *newmovie){
-  int r = newmovie->marketing / 10;
-  newmovie->rating = newmovie->budget;
 
-  
-  for(int i = 0; i < ITEMS_LENGTH; i++){
-    if(items[i].sold){
-      newmovie->rating *= items[i].bonus;
-    }
-  }
+long calculate_revenue(movie *newmovie){
+    long r = newmovie->marketing / 10;
+    newmovie->rating = newmovie->budget / 10;
 
-  for(int i = 0; i < 3; i++){
-    if(newmovie->actors[i]->bonus == newmovie->genre){
-      newmovie->rating *= 10;
+    for(int i = 0; i < ITEMS_LENGTH; i++){
+        if(items[i].sold){
+            newmovie->rating *= items[i].bonus;
+        }
     }
-  }
-  
-  for(int i = 0; i < 3; i++){
-    int a = r * newmovie->rating / 100;
-    r += newmovie->actors[i]->fans;
-    if(i != 7){
+    for(int i = 0; i < 3; i++){
+        if(newmovie->actors[i]->bonus == newmovie->genre){
+            newmovie->rating *= 2;
+        }
+    }
+
+    for(int i = 0; i < 3; i++){
+      long a = r;
+      if(newmovie->rating < 10000){
+        a /= 10000;
+      }
+      a *= r;
+      a /= 20;
+      r += newmovie->actors[i]->fans;
       newmovie->actors[i]->fans += a;
-      newmovie->actors[i]->salary += a * 5;
+      if(strcmp(newmovie->actors[i]->name, "Ronald Reagan") != 0){
+        newmovie->actors[i]->salary += a;
+      }
+      newmovie->actors[i]->available = 1;
     }
-    newmovie->actors[i]->available = 1;
-  }
-
-  return r * 20;
+    printf("Audiencia do filme: %ld\n", r);
+    return r * 20;
 }
-
 
 void make_movie(){
   movie *newmovie = malloc(sizeof(movie));;
   newmovie->next = NULL;
   printf("\nNome do filme: ");
-  scanf("%s", option);
+  fgets(option, sizeof(option), stdin);
+  option[strcspn(option, "\n")] = 0;
   strcpy(newmovie->name, option);
   while(1){
     printf("\nFaroeste\nCrime\nHeroi\nHorror\nDrama\nGenero: ");
-    scanf("%s", option);
-    if(!strcmp(tolower(option), "faroeste")){
+    fgets(option, sizeof(option), stdin);
+    option[strcspn(option, "\n")] = 0;
+    if(!strcmp(option, "faroeste")){
       newmovie->genre = FAROESTE;
       break;
-    } else if(!strcmp(tolower(option), "crime")){
+    } else if(!strcmp(option, "crime")){
       newmovie->genre = CRIME;
       break;
-    } else if(!strcmp(tolower(option), "heroi")){
+    } else if(!strcmp(option, "heroi")){
       newmovie->genre = HEROI;
       break;
-    } else if(!strcmp(tolower(option), "horror")){
+    } else if(!strcmp(option, "horror")){
       newmovie->genre = HORROR;
       break;
-    } else if(!strcmp(tolower(option), "drama")){
+    } else if(!strcmp(option, "drama")){
       newmovie->genre = DRAMA;
       break;
     } else {
-      printf("Invalido");
+      printf("Genero Invalido");
     }
   }
-  
-  printf("\nOrçamento: ");
-  scanf("%d", &n);
-  yourstudio->money -= n;
-  newmovie->budget = n;
-  printf("\nOrçamento de marketing: ");
-  scanf("%d", &n);
-  yourstudio->money -= n;
-  newmovie->marketing = n;
+  while(1){
+    printf("\nOrçamento do filme: ");
+    long o;
+    scanf("%ld", &o);
+    if(o > yourstudio->money){
+      printf("Dinheiro insuficiente\n");
+    } else {
+      yourstudio->money -= o;
+      newmovie->budget = o;
+      break;
+    }
+  }
+  while(1){
+    printf("\nOrçamento de marketing: ");
+    long o;
+    scanf("%ld", &o);
+    if(o > yourstudio->money){
+      printf("Dinheiro insuficiente\n");
+    } else {
+      yourstudio->money -= o;
+      newmovie->marketing = o;
+      break;
+    }
+  }
 
-
-  
-  for(int i = 1; i < 4; i++){
+  for(int i = 0; i < 3; i++){
     n = 0;
-    printf("\nEscolha o ator numero %d: ", i);
+    printf("\nEscolha o ator numero %d:\n", i + 1);
     for(int j = 0; j < ACTORS_LENGTH; j++){
       if(actors[j].available){
-        printf("%s\n", actors[j].name);
+        printf("%s salario: %ld\n", actors[j].name, actors[j].salary);
       }
     }
-    scanf("%s", option);
+    printf("\n");
+    fgets(option, sizeof(option), stdin);
+    option[strcspn(option, "\n")] = 0;
     actor *aaa = searchActor(option);
-    if(aaa == NULL){
-      printf("Nome Invalido");
+    if(aaa == NULL || aaa->available == 0){
+      printf("\nNome Invalido\n");
+      i--;
+    }else if(aaa->salary > yourstudio->money){
+      printf("Dinheiro insuficiente para contratar o ator\n");
       i--;
     } else {
+      printf("\nAtor escolhido!\n");
+      yourstudio->money -= aaa->salary;
       newmovie->actors[i] = aaa;
+      newmovie->actors[i]->available = 0;
     }
   }
-  newmovie->revenue = calculate_revenue(&newmovie);
+  newmovie->revenue = calculate_revenue(newmovie);
   if(newmovie->revenue > 1000000000){
     printf("Ronald Reagan desbloqueado\n");
     actors[7].available = 1;
   }
-  printf("Seu filme gerou %d dolares\n", newmovie->revenue);
+  printf("Seu filme gerou %ld dolares\n", newmovie->revenue);
   yourstudio->money += newmovie->revenue;
   head = organize(newmovie);
   return;
@@ -226,11 +252,12 @@ int save_game(char *f){
     return 1;
   }
   fprintf(fptr, "%s\n", yourstudio->name);
-  fprintf(fptr, "%d\n", yourstudio->money);
+  fprintf(fptr, "%ld\n", yourstudio->money);
   for(int i = 0; i < ACTORS_LENGTH; i++){
     fprintf(fptr, "%s\n", actors[i].name);
+    fprintf(fptr, "%ld\n", actors[i].salary);
     fprintf(fptr, "%d\n", actors[i].bonus);
-    fprintf(fptr, "%d\n", actors[i].fans);
+    fprintf(fptr, "%ld\n", actors[i].fans);
     fprintf(fptr, "%u\n", actors[i].available);
   }
   for(int i = 0; i < ITEMS_LENGTH; i++){
@@ -246,11 +273,12 @@ int save_game(char *f){
     for(int i = 0; i < 3; i++){
       fprintf(fptr, "%s\n", aux->actors[i]->name);
     }
-    fprintf(fptr, "%d\n", aux->revenue);
-    fprintf(fptr, "%d\n", aux->budget);
-    fprintf(fptr, "%d\n", aux->marketing);
-    fprintf(fptr, "%d\n", aux->rating);
+    fprintf(fptr, "%ld\n", aux->revenue);
+    fprintf(fptr, "%ld\n", aux->budget);
+    fprintf(fptr, "%ld\n", aux->marketing);
+    fprintf(fptr, "%ld\n", aux->rating);
     fprintf(fptr, "%d\n", aux->genre);
+    aux = aux->next;
   }
   fclose(fptr);
   return 0;
@@ -263,27 +291,34 @@ int load_game(char *f){
   }
   char st[100];
   fgets(yourstudio->name, 50, fptr);
-  fscanf(fptr, "%d", yourstudio->money);
+  fscanf(fptr, "%ld", &yourstudio->money);
+  fgetc(fptr);
 
   for(int i = 0; i < ACTORS_LENGTH; i++){
     fgets(actors[i].name, 100, fptr);
-    fscanf(fptr, "%d", actors[i].bonus);
-    fscanf(fptr, "%d", actors[i].fans);
-    fscanf(fptr, "%u", actors[i].available);
+    fscanf(fptr, "%ld", &actors[i].salary);
+    fscanf(fptr, "%d", &actors[i].bonus);
+    fscanf(fptr, "%ld", &actors[i].fans);
+    fscanf(fptr, "%u", &actors[i].available);
+    fgetc(fptr);
+    insertActor(&actors[i]);
   }
   for(int i = 0; i < ITEMS_LENGTH; i++){
     fgets(items[i].name, 20, fptr);
-    fscanf(fptr, "%d", items[i].price);
-    fscanf(fptr, "%d", items[i].bonus);
-    fscanf(fptr, "%u", items[i].sold);
-    fscanf(fptr, "%u", items[i].available);
+    fscanf(fptr, "%d", &items[i].price);
+    fscanf(fptr, "%d", &items[i].bonus);
+    fscanf(fptr, "%u", &items[i].sold);
+    fscanf(fptr, "%u", &items[i].available);
+    fgetc(fptr);
   }
 
 
   movie *aux;
   unsigned char co = 0;
-  while(fgets(aux->name, 50, fptr) != NULL){
+  while(fgets(st, 50, fptr) != NULL){
     aux = malloc(sizeof(movie));
+    strcpy(aux->name, st);
+    printf("Nome do filme: %s\n", aux->name);
     if(!co){
       head = aux;
       co = 1;
@@ -293,18 +328,18 @@ int load_game(char *f){
       fgets(st, 100, fptr);
       aux->actors[i] = searchActor(st);
     }
-    fscanf(fptr, "%d", aux->revenue);
-    fscanf(fptr, "%d", aux->budget);
-    fscanf(fptr, "%d", aux->marketing);
-    fscanf(fptr, "%d", aux->rating);
-    fscanf(fptr, "%d", aux->genre);
+    fscanf(fptr, "%ld", &aux->revenue);
+    fscanf(fptr, "%ld", &aux->budget);
+    fscanf(fptr, "%ld", &aux->marketing);
+    fscanf(fptr, "%ld", &aux->rating);
+    fscanf(fptr, "%d", &aux->genre);
     aux->next = NULL;
     aux = aux->next;
+    fgetc(fptr);
   }
   fclose(fptr);
   return 0;
 }
-
 void new_game(){
   yourstudio->money = 100000;
   strcpy(actors[0].name, "Robert DeNiro");
@@ -370,13 +405,13 @@ void new_game(){
 
   strcpy(items[1].name, "Camera colorida");
   items[1].price = 1000000;
-  items[1].bonus = 10;
+  items[1].bonus = 5;
   items[1].sold = 0;
   items[1].available = 1;
 
   strcpy(items[2].name, "Efeitos especiais");
   items[2].price = 1000000;
-  items[2].bonus = 10;
+  items[2].bonus = 5;
   items[2].sold = 0;
   items[2].available = 1;
   return;
@@ -386,19 +421,21 @@ int main(){
   head = NULL;
   yourstudio = malloc(sizeof(studio));
   items = malloc(ITEMS_LENGTH * sizeof(item));
-  actors = malloc(ACTORS_LENGTH * sizeof(actors));
-  printf("New Game\nLoad\n");
+  actors = malloc(ACTORS_LENGTH * sizeof(actor));
+  printf("Opcoes:\nNew Game\nLoad\n");
   while(1){
-    scanf("%s", option);
-    if(!strcmp(option, "New Game")){
-      printf("Escolha o nome de seu estudio\n", n);
-      scanf("%s", option);
-      strcpy(yourstudio->name, option);
+    fgets(option, sizeof(option), stdin);
+    option[strcspn(option, "\n")] = 0;
+    if(!strcmp(option, "new game")){
+      printf("Escolha o nome de seu estudio\n");
+      fgets(yourstudio->name, sizeof(yourstudio->name), stdin);
+      yourstudio->name[strcspn(yourstudio->name, "\n")] = 0;
       new_game();
       break;
     } else if(!strcmp(option, "Load")){
       printf("Digite o nome do save\n");
-      scanf("%s", option);
+      fgets(option, sizeof(option), stdin);
+      option[strcspn(option, "\n")] = 0;
       if(!load_game(option)){
         break;
       }
@@ -408,9 +445,10 @@ int main(){
     }
   }
   while(1){
-    printf("Que deseja fazer?\nLoja\nNovo Filme\nStatus\nSave\nExit\n");
-    scanf("%s", option);
-    if(!strcmp(tolower(option), "loja")){
+    printf("\n\nQue deseja fazer?\nLoja\nNovo Filme\nStatus\nSave\nExit\n");
+    fgets(option, sizeof(option), stdin);
+    option[strcspn(option, "\n")] = 0;
+    if(!strcmp(option, "loja")){
       while(1){
         printf("Opcoes:\nExit\n");
         for(int i = 0; i < ITEMS_LENGTH; i++){
@@ -418,44 +456,72 @@ int main(){
             printf("%s, %d dolares\n", items[i].name, items[i].price);
           }
         }
-        scanf("%s", option);
-        if(!strcmp(tolower(option), "exit")){
-          printf("Saindo da Loja...\n");
+        fgets(option, sizeof(option), stdin);
+        option[strcspn(option, "\n")] = 0;
+        if(!strcmp(option, "exit")){
+          printf("Saindo da Loja...\n\n");
           break;
         }
         for(int i = 0; i < ITEMS_LENGTH; i++){
-          if(!strcmp(tolower(option), tolower(items[i].name))){
+          if(!strcmp(option, items[i].name)){
             items[i].sold = 1;
             items[i].available = 0;
             break;
           }
           if(i == ITEMS_LENGTH - 1){
-            printf("Comando Invalido\n");
+            printf("Comando Invalido\n\n");
           }
         }
       }    
-    } else if(strcmp(tolower(option), "novo filme")){
+    } else if(!strcmp(option, "novo filme")){
       make_movie();
-    } else if(!strcmp(tolower(option), "status")){
-      printf("Nome de seu estudio: %s\nDinheiro: %d\nAtores:\n");
+    } else if(!strcmp(option, "status")){
+      printf("Nome de seu estudio: %s\n", yourstudio->name);
+      printf("Dinheiro: %ld\nAtores:\n", yourstudio->money);
       for(int i = 0; i < ACTORS_LENGTH; i++){
         if(actors[i].available){
-          printf("%s, salario atual: %d\n", actors[i].name, actors[i].salary);
+          printf("%s salario atual: %ld\n\n", actors[i].name, actors[i].salary);
         }
       }
-      printf("Items Comprados:\n");
+      printf("Items Comprados:\n\n");
       for(int i = 0; i < ITEMS_LENGTH; i++){
         if(items[i].sold){
-          printf("%s\n", items[i].name);
+          printf("%s\n\n", items[i].name);
         }
       }
-    } else if(strcmp(tolower(option), "save")){
+      printf("Filmes produzidos:\n\n");
+      movie *aux = head;
+      while(aux != NULL){
+        printf("\nNome: %s\n", aux->name);
+        printf("Genero: ");
+        if(aux->genre == FAROESTE){
+          printf("Faroeste\n");
+        } else if(aux->genre == CRIME){
+          printf("Crime\n");
+        } else if(aux->genre == HEROI){
+          printf("Heroi\n");
+        } else if(aux->genre == HORROR){
+          printf("Horror\n");
+        } else if(aux->genre == DRAMA){
+          printf("Drama\n");
+        }
+        printf("Orçamento: %ld\n", aux->budget);
+        printf("Orçamento de marketing: %ld\n", aux->marketing);
+        printf("Atores:\n");
+        for(int i = 0; i < 3; i++){
+          printf("%s salario: %ld\n", aux->actors[i]->name, aux->actors[i]->salary);
+        }
+        printf("Receita: %ld\n\n", aux->revenue);
+        aux = aux->next;
+      }
+    } else if(!strcmp(option, "save")){
       printf("Digite o nome do arquivo de save\n");
-      scanf("%s", option);
+      fgets(option, sizeof(option), stdin);
+      option[strcspn(option, "\n")] = 0;
       if(save_game(option)){
         printf("Nao foi possivel salvar o jogo\n");
       }
-    } else if(!strcmp(tolower(option), "exit")){
+    } else if(!strcmp(option, "exit")){
       break;
     } else {
       printf("Comando Invalido\n");
