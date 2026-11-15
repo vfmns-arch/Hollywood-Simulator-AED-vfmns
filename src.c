@@ -158,12 +158,26 @@ long calculate_revenue(movie *newmovie){
 void make_movie(){
   movie *newmovie = malloc(sizeof(movie));;
   newmovie->next = NULL;
-  printf("\nNome do filme: ");
+  printf("\n");
+  printf("========================================\n");
+  printf("             NOVO FILME                 \n");
+  printf("========================================\n");
+
+  printf("\n  Nome do filme: ");
   fgets(option, sizeof(option), stdin);
   option[strcspn(option, "\n")] = 0;
   strcpy(newmovie->name, option);
   while(1){
-    printf("\nFaroeste\nCrime\nHeroi\nHorror\nDrama\nGenero: ");
+    printf("\n----------------------------------------\n");
+    printf("              GENEROS                   \n");
+    printf("----------------------------------------\n");
+    printf("  Faroeste\n");
+    printf("  Crime\n");
+    printf("  Heroi\n");
+    printf("  Horror\n");
+    printf("  Drama\n");
+    printf("----------------------------------------\n");
+    printf("  Genero: ");
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
     if(!strcmp(option, "faroeste")){
@@ -209,16 +223,25 @@ void make_movie(){
       break;
     }
   }
-
+  
   for(int i = 0; i < 3; i++){
     n = 0;
-    printf("\nEscolha o ator numero %d:\n", i + 1);
-    for(int j = 0; j < ACTORS_LENGTH; j++){
-      if(actors[j].available){
-        printf("%s salario: %ld\n", actors[j].name, actors[j].salary);
-      }
-    }
     printf("\n");
+    printf("========================================\n");
+    printf("              ELENCO                    \n");
+    printf("========================================\n");
+
+    printf("\n  Escolha o ator numero %d:\n\n", i + 1);
+
+    for(int j = 0; j < ACTORS_LENGTH; j++){
+        if(actors[j].available){
+            printf("  %-25s | Salario: $%ld\n",
+                   actors[j].name, actors[j].salary);
+        }
+    }
+
+    printf("----------------------------------------\n");
+    printf("  Nome do ator: ");
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
     actor *aaa = searchActor(option);
@@ -240,9 +263,16 @@ void make_movie(){
     printf("Ronald Reagan desbloqueado\n");
     actors[7].available = 1;
   }
-  printf("Seu filme gerou %ld dolares\n", newmovie->revenue);
   yourstudio->money += newmovie->revenue;
   head = organize(newmovie);
+  printf("\n");
+  printf("========================================\n");
+  printf("             ESTREIA DO FILME           \n");
+  printf("========================================\n");
+
+  printf("\n  Audiencia: %ld espectadores\n", r);
+  printf("  Receita:   $%ld\n", newmovie->revenue);
+  printf("========================================\n");
   return;
 }
 
@@ -427,7 +457,14 @@ int main(){
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
     if(!strcmp(option, "new game")){
-      printf("Escolha o nome de seu estudio\n");
+      printf("\n");
+      printf("========================================\n");
+      printf("          BEM-VINDO A HOLLYWOOD          \n");
+      printf("========================================\n");
+      printf("\n");
+      printf("  Um novo estudio esta prestes a nascer!\n");
+      printf("\n");
+      printf("  Escolha o nome do seu estudio: ");
       fgets(yourstudio->name, sizeof(yourstudio->name), stdin);
       yourstudio->name[strcspn(yourstudio->name, "\n")] = 0;
       new_game();
@@ -445,7 +482,19 @@ int main(){
     }
   }
   while(1){
-    printf("\n\nQue deseja fazer?\nLoja\nNovo Filme\nStatus\nSave\nExit\n");
+    printf("\n");
+    printf("========================================\n");
+    printf("          HOLLYWOOD STUDIOS             \n");
+    printf("========================================\n");
+    printf("             MENU PRINCIPAL             \n");
+    printf("----------------------------------------\n");
+    printf("  Loja\n");
+    printf("  Novo Filme\n");
+    printf("  Status\n");
+    printf("  Save\n");
+    printf("  Exit\n");
+    printf("----------------------------------------\n");
+    printf("  Escolha uma opcao: ");
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
     if(!strcmp(option, "loja")){
@@ -476,12 +525,23 @@ int main(){
     } else if(!strcmp(option, "novo filme")){
       make_movie();
     } else if(!strcmp(option, "status")){
-      printf("Nome de seu estudio: %s\n", yourstudio->name);
-      printf("Dinheiro: %ld\nAtores:\n", yourstudio->money);
+      printf("\n");
+      printf("========================================\n");
+      printf("             STUDIO STATUS              \n");
+      printf("========================================\n");
+
+      printf("\n  Estudio: %s\n", yourstudio->name);
+      printf("  Saldo:   $%ld\n", yourstudio->money);
+
+      printf("\n----------------------------------------\n");
+      printf("                ATORES                  \n");
+      printf("----------------------------------------\n");
+
       for(int i = 0; i < ACTORS_LENGTH; i++){
-        if(actors[i].available){
-          printf("%s salario atual: %ld\n\n", actors[i].name, actors[i].salary);
-        }
+          if(actors[i].available){
+              printf("  %-25s | $%ld\n",
+                     actors[i].name, actors[i].salary);
+          }
       }
       printf("Items Comprados:\n\n");
       for(int i = 0; i < ITEMS_LENGTH; i++){
