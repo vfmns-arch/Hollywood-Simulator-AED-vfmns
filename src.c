@@ -151,12 +151,19 @@ long calculate_revenue(movie *newmovie){
       }
       newmovie->actors[i]->available = 1;
     }
-    printf("Audiencia do filme: %ld\n", r);
+    printf("\n");
+    printf("========================================\n");
+    printf("             ESTREIA DO FILME           \n");
+    printf("========================================\n");
+
+    printf("\n  Audiencia: %ld espectadores\n", r);
+    printf("  Receita:   $%ld\n", newmovie->revenue);
+    printf("========================================\n");
     return r * 20;
 }
 
 void make_movie(){
-  movie *newmovie = malloc(sizeof(movie));;
+  movie *newmovie = malloc(sizeof(movie));
   newmovie->next = NULL;
   printf("\n");
   printf("========================================\n");
@@ -263,16 +270,9 @@ void make_movie(){
     printf("Ronald Reagan desbloqueado\n");
     actors[7].available = 1;
   }
+  newmovie->revenue = calculate_revenue(newmovie);
   yourstudio->money += newmovie->revenue;
   head = organize(newmovie);
-  printf("\n");
-  printf("========================================\n");
-  printf("             ESTREIA DO FILME           \n");
-  printf("========================================\n");
-
-  printf("\n  Audiencia: %ld espectadores\n", r);
-  printf("  Receita:   $%ld\n", newmovie->revenue);
-  printf("========================================\n");
   return;
 }
 
