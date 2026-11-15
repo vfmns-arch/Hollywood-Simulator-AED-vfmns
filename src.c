@@ -463,7 +463,7 @@ int main(){
   while(1){
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
-    if(!strcmp(option, "new game")){
+    if(!strcmp(option, "New Game")){
       printf("\n");
       printf("========================================\n");
       printf("          BEM-VINDO A HOLLYWOOD          \n");
@@ -504,7 +504,7 @@ int main(){
     printf("  Escolha uma opcao: ");
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
-    if(!strcmp(option, "loja")){
+    if(!strcmp(option, "Loja")){
       while(1){
         printf("Opcoes:\nExit\n");
         for(int i = 0; i < ITEMS_LENGTH; i++){
@@ -514,7 +514,7 @@ int main(){
         }
         fgets(option, sizeof(option), stdin);
         option[strcspn(option, "\n")] = 0;
-        if(!strcmp(option, "exit")){
+        if(!strcmp(option, "Exit")){
           printf("Saindo da Loja...\n\n");
           break;
         }
@@ -530,9 +530,9 @@ int main(){
           }
         }
       }    
-    } else if(!strcmp(option, "novo filme")){
+    } else if(!strcmp(option, "Novo Filme")){
       make_movie();
-    } else if(!strcmp(option, "status")){
+    } else if(!strcmp(option, "Status")){
       printf("\n");
       printf("========================================\n");
       printf("             STUDIO STATUS              \n");
@@ -582,7 +582,7 @@ int main(){
         printf("Receita: %ld\n\n", aux->revenue);
         aux = aux->next;
       }
-    } else if(!strcmp(option, "save")){
+    } else if(!strcmp(option, "Save")){
       printf("Digite o nome do arquivo de save\n");
       fgets(option, sizeof(option), stdin);
       option[strcspn(option, "\n")] = 0;
