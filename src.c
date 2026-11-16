@@ -266,8 +266,16 @@ void make_movie(){
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
     actor *aaa = searchActor(option);
-    printf("Ator escolhido: %s\n", option);
     if(aaa == NULL || aaa->available == 0){
+      to_lowercase(option);
+      if(!strcmp(option, "exit")){
+        yourstudio->money += newmovie->budget + newmovie->marketing;
+        for(int j = 0; j < i; j++){
+          yourstudio->money += newmovie->actors[j]->salary;
+        }
+        free(newmovie);
+        return;
+      }
       printf("\nNome Invalido\n");
       i--;
     }else if(aaa->salary > yourstudio->money){
