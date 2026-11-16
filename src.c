@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define TABLE_SIZE 16
 #define ACTORS_LENGTH 8
@@ -10,6 +11,12 @@
 #define HEROI 3
 #define HORROR 4
 #define DRAMA 5
+
+void to_lowercase(char *str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        str[i] = tolower((unsigned char)str[i]);
+    }
+}
 
 struct actor{
   char name[100];
@@ -53,8 +60,6 @@ struct item{
 };
 typedef struct item item;
 
-
-char option[50];
 int n;
 movie *head;
 studio *yourstudio;
@@ -178,6 +183,7 @@ void make_movie(){
   printf("\n  Nome do filme: ");
   fgets(option, sizeof(option), stdin);
   option[strcspn(option, "\n")] = 0;
+  to_lowercase(option);
   strcpy(newmovie->name, option);
   while(1){
     printf("\n----------------------------------------\n");
@@ -192,6 +198,7 @@ void make_movie(){
     printf("  Genero: ");
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
+    to_lowercase(option);
     if(!strcmp(option, "faroeste")){
       newmovie->genre = FAROESTE;
       break;
@@ -378,7 +385,7 @@ int load_game(char *f){
   return 0;
 }
 void new_game(){
-  yourstudio->money = 100000;
+  yourstudio->money = 200000;
   strcpy(actors[0].name, "Robert DeNiro");
   actors[0].bonus = CRIME;
   actors[0].salary = 50000;
@@ -434,19 +441,19 @@ void new_game(){
   actors[7].fans = 1000000;
   actors[7].available = 0;
   insertActor(&actors[7]);
-  strcpy(items[0].name, "Microfones");
+  strcpy(items[0].name, "microfones");
   items[0].price = 100000;
   items[0].bonus = 2;
   items[0].sold = 0;
   items[0].available = 1;
 
-  strcpy(items[1].name, "Camera colorida");
+  strcpy(items[1].name, "camera colorida");
   items[1].price = 1000000;
   items[1].bonus = 5;
   items[1].sold = 0;
   items[1].available = 1;
 
-  strcpy(items[2].name, "Efeitos especiais");
+  strcpy(items[2].name, "efeitos especiais");
   items[2].price = 1000000;
   items[2].bonus = 5;
   items[2].sold = 0;
@@ -463,7 +470,8 @@ int main(){
   while(1){
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
-    if(!strcmp(option, "New Game")){
+    to_lowercase(option);
+    if(!strcmp(option, "new game")){
       printf("\n");
       printf("========================================\n");
       printf("          BEM-VINDO A HOLLYWOOD          \n");
@@ -476,7 +484,7 @@ int main(){
       yourstudio->name[strcspn(yourstudio->name, "\n")] = 0;
       new_game();
       break;
-    } else if(!strcmp(option, "Load")){
+    } else if(!strcmp(option, "load")){
       printf("Digite o nome do save\n");
       fgets(option, sizeof(option), stdin);
       option[strcspn(option, "\n")] = 0;
@@ -504,7 +512,8 @@ int main(){
     printf("  Escolha uma opcao: ");
     fgets(option, sizeof(option), stdin);
     option[strcspn(option, "\n")] = 0;
-    if(!strcmp(option, "Loja")){
+    to_lowercase(option);
+    if(!strcmp(option, "loja")){
       while(1){
         printf("Opcoes:\nExit\n");
         for(int i = 0; i < ITEMS_LENGTH; i++){
@@ -514,7 +523,8 @@ int main(){
         }
         fgets(option, sizeof(option), stdin);
         option[strcspn(option, "\n")] = 0;
-        if(!strcmp(option, "Exit")){
+        to_lowercase(option);
+        if(!strcmp(option, "exit")){
           printf("Saindo da Loja...\n\n");
           break;
         }
@@ -530,9 +540,9 @@ int main(){
           }
         }
       }    
-    } else if(!strcmp(option, "Novo Filme")){
+    } else if(!strcmp(option, "novo filme")){
       make_movie();
-    } else if(!strcmp(option, "Status")){
+    } else if(!strcmp(option, "status")){
       printf("\n");
       printf("========================================\n");
       printf("             STUDIO STATUS              \n");
@@ -582,7 +592,7 @@ int main(){
         printf("Receita: %ld\n\n", aux->revenue);
         aux = aux->next;
       }
-    } else if(!strcmp(option, "Save")){
+    } else if(!strcmp(option, "save")){
       printf("Digite o nome do arquivo de save\n");
       fgets(option, sizeof(option), stdin);
       option[strcspn(option, "\n")] = 0;
