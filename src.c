@@ -156,14 +156,7 @@ long calculate_revenue(movie *newmovie){
       }
       newmovie->actors[i]->available = 1;
     }
-    printf("\n");
-    printf("========================================\n");
-    printf("             ESTREIA DO FILME           \n");
-    printf("========================================\n");
-
-    printf("\n  Audiencia: %ld espectadores\n", r);
-    printf("  Receita:   $%ld\n", newmovie->revenue);
-    printf("========================================\n");
+    
     return r * 20;
 }
 
@@ -295,6 +288,14 @@ void make_movie(){
   }
   yourstudio->money += newmovie->revenue;
   head = organize(newmovie);
+  printf("\n");
+  printf("========================================\n");
+  printf("             ESTREIA DO FILME           \n");
+  printf("========================================\n");
+
+  printf("\n  Audiencia: %ld espectadores\n", r);
+  printf("  Receita:   $%ld\n", newmovie->revenue);
+  printf("========================================\n");
   return;
 }
 
