@@ -293,7 +293,7 @@ void make_movie(){
   printf("             ESTREIA DO FILME           \n");
   printf("========================================\n");
 
-  printf("\n  Audiencia: %ld espectadores\n", r);
+  printf("\n  Audiencia: %ld espectadores\n", newmovie->revenue / 20);
   printf("  Receita:   $%ld\n", newmovie->revenue);
   printf("========================================\n");
   return;
